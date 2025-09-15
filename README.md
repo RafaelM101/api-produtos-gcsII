@@ -27,8 +27,9 @@ Esta é uma API simples construída com **Node.js**, **Express** e **SQLite** pa
 Clone o repositório para o seu ambiente local:
 
 ```bash
-git clone https://github.com/seu-usuario/api-produtos.git
-cd api-produtos
+
+git clone https://github.com/RafaelM101/api-produtos-gcsII
+
 ```
 
 ### 2. Instalando as Dependências
@@ -139,3 +140,4 @@ Este projeto segue o **GitHub Flow**, um fluxo de trabalho simples que utiliza u
 O GitHub Flow foi escolhido para este projeto por ser um fluxo de trabalho simples e eficaz para projetos com um único ambiente de produção, onde não há necessidade de ambientes separados para desenvolvimento, homologação ou produção. Ele facilita a colaboração contínua e a entrega de funcionalidades de maneira ágil, permitindo que qualquer novo desenvolvimento seja realizado em uma branch separada e, após revisão, seja integrado à branch main de forma rápida e sem complicações.
 
 Esse fluxo é ideal para projetos menores, como o meu, onde temos um número limitado de desenvolvedores e funcionalidades, permitindo implantações regulares e manutenção simples do código.
+
