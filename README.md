@@ -30,7 +30,7 @@ Clone o repositório para o seu ambiente local:
 
 bash
 
-git clone https://github.com/seu-usuario/api-produtos.git
+git clone https://github.com/RafaelM101/api-produtos-gcsII
 
 cd api-produtos
 
