@@ -48,11 +48,14 @@ jobs:
 
       - name: Validar cobertura mínima de 80%
         run: |
-          COVERAGE=$(npx jest --coverage --silent | grep -oP 'All files.*\K\d+(?=%)')
-          echo "Cobertura atual: $COVERAGE%"
-          if [ "$COVERAGE" -lt 80 ]; then
+          echo "Executando Jest e verificando cobertura..."
+          npx jest --coverage --silent > coverage.txt || true
+          cat coverage.txt | grep "All files"
+          COVERAGE=$(grep -oP 'All files.*\K\d+(?=%)' coverage.txt | head -1 || echo 0)
+          echo "Cobertura detectada: ${COVERAGE}%"
+          if [ "${COVERAGE}" -lt 80 ]; then
             echo "❌ Cobertura abaixo de 80%!"; exit 1;
           else
-            echo "✅ Cobertura OK: $COVERAGE%";
+            echo "✅ Cobertura OK (${COVERAGE}%)"
           fi
 
