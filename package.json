@@ -1,0 +1,37 @@
+{
+  "name": "api-produtos-gcsii",
+  "version": "1.0.0",
+  "description": "Esta é uma API simples construída com **Node.js**, **Express** e **SQLite** para gerenciar produtos eletrônicos. A API permite realizar operações básicas como listar os produtos eletrônicos cadastrados no banco de dados e adicionar novos produtos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint ."
+  },
+    "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
+  },
+    "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10"
+  }
+}
