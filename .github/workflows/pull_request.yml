@@ -4,17 +4,16 @@ on:
   pull_request:
     branches:
       - master
-      - feature/**
+      - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
 
+  lint:
+    name: Verificação de Estilo (ESLint)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
-        with:
-          path: .  
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
@@ -24,8 +23,35 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Rodar lint
+      - name: Rodar ESLint
         run: npm run lint
 
-      - name: Rodar testes
-        run: npm test
+
+  coverage:
+    name: Verificação de Cobertura de Testes
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar testes com cobertura
+        run: npm test -- --coverage --silent
+
+      - name: Validar cobertura mínima de 90%
+        run: |
+          COVERAGE=$(npx jest --coverage --silent | grep -oP 'All files.*\K\d+(?=%)')
+          echo "Cobertura atual: $COVERAGE%"
+          if [ "$COVERAGE" -lt 90 ]; then
+            echo "❌ Cobertura abaixo de 90%!"; exit 1;
+          else
+            echo "✅ Cobertura OK: $COVERAGE%";
+          fi

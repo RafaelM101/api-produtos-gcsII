@@ -4,17 +4,17 @@ on:
   push:
     branches:
       - master
+      - main
       - feature/**
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
 
+  lint:
+    name: Verificação de Estilo (ESLint)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
-        with:
-          path: . 
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
@@ -24,8 +24,24 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Rodar lint
+      - name: Rodar ESLint
         run: npm run lint
 
-      - name: Rodar testes
+  tests:
+    name: Testes Automatizados
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar testes
         run: npm test
