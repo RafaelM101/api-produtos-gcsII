@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../database');
+const db = require('./database');
 const app = express();
 const port = 8080;
 
@@ -45,7 +45,37 @@ app.post('/api/produtos', (req, res) => {
     stmt.finalize();  
 });
 
-// Inicia o servidor na porta 8080
-app.listen(port, () => {
-    console.log(`API rodando em http://localhost:${port}`);
+app.delete('/api/produtos/:id', (req, res) => {
+    const { id } = req.params;
+
+    // Verifica se o produto existe
+    db.get("SELECT * FROM produtos WHERE id = ?", [id], (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (!row) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+
+        // Remove o produto
+        db.run("DELETE FROM produtos WHERE id = ?", [id], function(err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+
+            // 204: No Content (sem corpo de resposta)
+            return res.status(204).send();
+        });
+    });
 });
+
+
+// Inicia o servidor na porta 8080
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`API rodando em http://localhost:${port}`);
+  });
+}
+
+module.exports = app;
