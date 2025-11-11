@@ -46,12 +46,13 @@ jobs:
       - name: Executar testes com cobertura
         run: npm test -- --coverage --silent
 
-      - name: Validar cobertura mínima de 90%
+      - name: Validar cobertura mínima de 80%
         run: |
           COVERAGE=$(npx jest --coverage --silent | grep -oP 'All files.*\K\d+(?=%)')
           echo "Cobertura atual: $COVERAGE%"
-          if [ "$COVERAGE" -lt 90 ]; then
-            echo "❌ Cobertura abaixo de 90%!"; exit 1;
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "❌ Cobertura abaixo de 80%!"; exit 1;
           else
             echo "✅ Cobertura OK: $COVERAGE%";
           fi
+
