@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../database');
+const db = require('./database');
 const app = express();
 const port = 8080;
 
@@ -72,6 +72,10 @@ app.delete('/api/produtos/:id', (req, res) => {
 
 
 // Inicia o servidor na porta 8080
-app.listen(port, () => {
+if (require.main === module) {
+  app.listen(port, () => {
     console.log(`API rodando em http://localhost:${port}`);
-});
+  });
+}
+
+module.exports = app;
