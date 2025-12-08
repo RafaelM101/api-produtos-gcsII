@@ -1,0 +1,125 @@
+---
+- name: Configurar API de produtos em Node.js
+  hosts: app_servers
+  become: true
+  vars:
+    app_name: api-produtos
+    app_user: nodeapp
+    app_group: nodeapp
+    app_dir: /opt/api-produtos
+    app_repo_url: ""
+    app_branch: main
+    node_packages:
+      - curl
+      - git
+      - nodejs
+      - npm
+      - sqlite3
+
+  pre_tasks:
+    - name: Atualizar cache de pacotes (Debian/Ubuntu)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+  tasks:
+    - name: Garantir que a URL do repositório foi definida
+      ansible.builtin.assert:
+        that:
+          - app_repo_url | length > 0
+        fail_msg: "Defina 'app_repo_url' com a URL do repositório git da API."
+
+    - name: Instalar dependências do sistema
+      ansible.builtin.package:
+        name: "{{ node_packages }}"
+        state: present
+
+    - name: Criar grupo da aplicação
+      ansible.builtin.group:
+        name: "{{ app_group }}"
+        system: true
+
+    - name: Criar usuário da aplicação
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        group: "{{ app_group }}"
+        create_home: false
+        shell: /usr/sbin/nologin
+        system: true
+
+    - name: Criar diretório da aplicação
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0755"
+
+    - name: Clonar ou atualizar código da API
+      ansible.builtin.git:
+        repo: "{{ app_repo_url }}"
+        dest: "{{ app_dir }}"
+        version: "{{ app_branch }}"
+        update: true
+        force: true
+      register: git_result
+
+    - name: Ajustar permissões do diretório após clone
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        recurse: true
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+      when: git_result.after is defined
+
+    - name: Instalar dependências Node.js em modo produção
+      ansible.builtin.npm:
+        path: "{{ app_dir }}"
+        production: true
+        executable: npm
+
+    - name: Criar serviço systemd para a API
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ app_name }}.service"
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=API de Produtos em Node.js
+          After=network.target
+
+          [Service]
+          Type=simple
+          User={{ app_user }}
+          Group={{ app_group }}
+          WorkingDirectory={{ app_dir }}
+          Environment=NODE_ENV=production
+          ExecStart=/usr/bin/node src/server.js
+          Restart=on-failure
+          RestartSec=5
+          StandardOutput=journal
+          StandardError=journal
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Reiniciar serviço da API
+
+    - name: Recarregar daemon do systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Habilitar e iniciar serviço
+      ansible.builtin.systemd_service:
+        name: "{{ app_name }}.service"
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reiniciar serviço da API
+      ansible.builtin.systemd_service:
+        name: "{{ app_name }}.service"
+        state: restarted
